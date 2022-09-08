@@ -1,7 +1,10 @@
 pipeline {
     agent {
+    dockerfile {
+        filename 'Dockerfile'
         label 'jenkins-agent'
         }
+}
 
     stages {
         stage('Hello') {
