@@ -43,7 +43,7 @@ spec:
       steps {
         container('docker') {
         sh 'printenv'
-        sh 'docker info'
+        sh 'docker version'
         }
           
       }
