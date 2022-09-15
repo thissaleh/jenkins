@@ -1,40 +1,64 @@
+
+
+// Uses Declarative syntax to run commands inside a container.
 pipeline {
-  agent {
-    kubernetes {
-      label 'dind'
-      defaultContainer 'docker'
-      yaml """
----
+    agent {
+        kubernetes {
+            // Rather than inline YAML, in a multibranch Pipeline you could use: yamlFile 'jenkins-pod.yaml'
+            // Or, to avoid YAML:
+            // containerTemplate {
+            //     name 'shell'
+            //     image 'ubuntu'
+            //     command 'sleep'
+            //     args 'infinity'
+            // }
+            yaml '''
 apiVersion: v1
 kind: Pod
-metadata:
-  labels:
-    app: jenkins
 spec:
   containers:
-    - name: docker 
-        image: docker:1.12.6 
-        command: ['docker', 'run', '-p', '80:80', 'httpd:latest'] 
-        resources: 
-            requests: 
-                cpu: 10m 
-                memory: 256Mi 
-        env: 
-          - name: DOCKER_HOST 
-            value: tcp://localhost:2375 
+  - name: shell
+    image: ubuntu
+    command:
+    - sleep
+    args:
+    - infinity
+  - name: docker
+    image: docker
+    command:
+    - cat
+    tty: true
+    volumeMounts:
+    - mountPath: /var/run/docker.sock
+      name: docker-sock
+#   securityContext:
+#     privileged: true
 
-"""
-    }
-  }
-  stages {
-    stage('Run Docker Things') {
-      steps {
-        container('docker') {
-        sh 'printenv'
-        sh 'docker version'
+  volumes:
+  - name: docker-sock
+    hostPath:
+     path: /var/run/docker.sock 
+'''
+       
         }
-          
-      }
     }
-  }
+    stages {
+        stage('Build') {
+        steps {
+            container('ubuntu') {
+              sh 'hostname'
+             }
+        }
+       }
+
+       stage('Build-Docker-Image') {
+         steps {
+           container('docker') {
+             sh 'docker build -t jenkins/inbound-agent:latest .'
+           }
+         }
+       }
+
+
+    }   
 }
