@@ -1,64 +1,60 @@
-
-
-// Uses Declarative syntax to run commands inside a container.
 pipeline {
-    agent {
-        kubernetes {
-            // Rather than inline YAML, in a multibranch Pipeline you could use: yamlFile 'jenkins-pod.yaml'
-            // Or, to avoid YAML:
-            // containerTemplate {
-            //     name 'shell'
-            //     image 'ubuntu'
-            //     command 'sleep'
-            //     args 'infinity'
-            // }
-            yaml '''
+  agent {
+    kubernetes {
+      label 'dind'
+      defaultContainer 'docker'
+      yaml """
+---
 apiVersion: v1
 kind: Pod
+metadata:
+  labels:
+    app: jenkins
 spec:
   containers:
-  - name: shell
-    image: ubuntu
-    command:
-    - sleep
-    args:
-    - infinity
-  - name: docker
-    image: dind
-    command:
-    - cat
-    tty: true
-    volumeMounts:
-    - mountPath: /var/run/docker.sock
-      name: docker-sock
-    securityContext:
-      privileged: true
-      
+    - name: docker
+      image: docker:latest
+      command:
+        - /bin/cat
+      tty: true
+      volumeMounts:
+        - name: dind-certs
+          mountPath: /certs
+      env:
+        - name: DOCKER_TLS_CERTDIR
+          value: /certs
+        - name: DOCKER_CERT_PATH
+          value: /certs
+        - name: DOCKER_TLS_VERIFY
+          value: 1
+        - name: DOCKER_HOST
+          value: tcp://localhost:2376
+    - name: dind
+      image: docker:dind
+      securityContext:
+        privileged: true
+      env:
+        - name: DOCKER_TLS_CERTDIR
+          value: /certs
+      volumeMounts:
+        - name: dind-storage
+          mountPath: /var/lib/docker
+        - name: dind-certs
+          mountPath: /certs
   volumes:
-  - name: docker-sock
-    hostPath:
-    path: /var/run/docker.sock 
-'''
-       
-        }
+    - name: dind-storage
+      emptyDir: {}
+    - name: dind-certs
+      emptyDir: {}
+"""
     }
-    stages {
-        stage('Main') {
-        steps {
-            container('shell') {
-              sh 'hostname'
-             }
-        }
-       }
-
-       stage('Build-Docker-Image') {
-         steps {
-           container('docker') {
-             sh 'docker build -t jenkins/inbound-agent:latest .'
-           }
-         }
-       }
-
-
-    }   
+  }
+  stages {
+    stage('Run Docker Things') {
+      steps {
+        sh 'printenv'
+        sh 'docker info'
+      }
+    }
+  }
 }
