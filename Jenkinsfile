@@ -30,7 +30,9 @@ spec:
     tty: true
     volumeMounts:
     - mountPath: /var/run/docker.sock
-      name: docker-sock
+      name: docker-socket-volume
+    securityContext:
+      privileged: true
   - name: dind
     image: docker:dind
     securityContext:
@@ -38,14 +40,15 @@ spec:
     volumeMounts:
     - name: dind-storage
       mountPath: /var/lib/docker
-      
+    
   volumes:
    - name: dind-storage
      emptyDir: {}
-   - name: docker-sock
+   - name: docker-socket-volume
      hostPath:
-     path: /var/run/docker.sock  
-       
+     	path: /var/run/docker.sock  
+        type: File
+
        '''
         }
     }
