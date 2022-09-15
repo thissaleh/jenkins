@@ -1,16 +1,36 @@
 pipeline {
     agent {
-    dockerfile {
-        filename 'Dockerfile'
-        label 'jenkins-agent'
-        args '-u 1001:994 -v /var/run/docker.sock:/var/run/docker.sock'
-        }
+            kubernetes {
+            // Rather than inline YAML, in a multibranch Pipeline you could use: yamlFile 'jenkins-pod.yaml'
+            // Or, to avoid YAML:
+            // containerTemplate {
+            //     name 'shell'
+            //     image 'ubuntu'
+            //     command 'sleep'
+            //     args 'infinity'
+            // }
+            yaml '''
+apiVersion: v1
+kind: Pod
+spec:
+  containers:
+  - name: shell
+    image: ubuntu
+    command:
+    - sleep
+    args:
+    - infinity
 }
 
     stages {
         stage('Hello') {
             steps {
-                echo 'Hello World'
+            
+            container('shell') {
+              sh 'hostname'
+              sh 'echo Hello World'
+             }
+                
             }
         }
     }
