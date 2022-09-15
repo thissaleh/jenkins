@@ -1,6 +1,9 @@
+
+
+// Uses Declarative syntax to run commands inside a container.
 pipeline {
     agent {
-            kubernetes {
+        kubernetes {
             // Rather than inline YAML, in a multibranch Pipeline you could use: yamlFile 'jenkins-pod.yaml'
             // Or, to avoid YAML:
             // containerTemplate {
@@ -20,18 +23,18 @@ spec:
     - sleep
     args:
     - infinity
-}
 
-    stages {
-        stage('Hello') {
-            steps {
-            
-            container('shell') {
-              sh 'hostname'
-              sh 'echo Hello World'
-             }
-                
-            }
+'''
+       
         }
     }
+    stages {
+        stage('Main') {
+        steps {
+            container('shell') {
+              sh 'hostname'
+             }
+        }
+       }
+    }   
 }
