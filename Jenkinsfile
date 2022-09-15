@@ -31,8 +31,7 @@ spec:
           value: tcp://localhost:2376
     - name: dind
       image: docker:dind
-      securityContext:
-        privileged: true
+
       env:
         - name: DOCKER_TLS_CERTDIR
           value: /certs
