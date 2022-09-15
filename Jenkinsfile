@@ -46,6 +46,7 @@ spec:
      hostPath:
      path: /var/run/docker.sock  
        
+       '''
         }
     }
     stages {
@@ -64,7 +65,6 @@ spec:
            }
          }
        }
-
 
     }   
 }
