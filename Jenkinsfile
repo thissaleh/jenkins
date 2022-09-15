@@ -46,7 +46,8 @@ spec:
      emptyDir: {}
    - name: docker-socket-volume
      hostPath:
-     	path: /var/run/docker.sock  
+     path: /var/run/docker.sock  
+     type: File
 
 
        '''
