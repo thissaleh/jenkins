@@ -12,23 +12,24 @@ metadata:
     app: jenkins
 spec:
   containers:
-  - name: dind
-    image: docker:18.05-dind
-    securityContext:
-      privileged: true
-    volumeMounts:
-      - name: dind-storage
-        mountPath: /var/lib/docker
-  volumes:
-    - name: dind-storage
-      emptyDir: {}
+    - name: docker 
+        image: docker:1.12.6 
+        command: ['docker', 'run', '-p', '80:80', 'httpd:latest'] 
+        resources: 
+            requests: 
+                cpu: 10m 
+                memory: 256Mi 
+        env: 
+          - name: DOCKER_HOST 
+            value: tcp://localhost:2375 
+
 """
     }
   }
   stages {
     stage('Run Docker Things') {
       steps {
-        container('dind') {
+        container('docker') {
         sh 'printenv'
         sh 'docker version'
         }
