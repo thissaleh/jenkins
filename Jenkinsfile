@@ -51,8 +51,11 @@ spec:
   stages {
     stage('Run Docker Things') {
       steps {
+        container('docker') {
         sh 'printenv'
         sh 'docker info'
+        }
+          
       }
     }
   }
