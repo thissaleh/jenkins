@@ -31,14 +31,20 @@ spec:
     volumeMounts:
     - mountPath: /var/run/docker.sock
       name: docker-sock
-#   securityContext:
-#     privileged: true
+  - name: dind
+    image: docker:dind
+    securityContext:
+       privileged: true
+    volumeMounts:
+    - name: dind-storage
+      mountPath: /var/lib/docker
 
-  volumes:
-  - name: docker-sock
-    hostPath:
-     path: /var/run/docker.sock 
-'''
+   volumes:
+   - name: dind-storage
+     emptyDir: {}
+   - name: docker-sock
+     hostPath:
+     path: /var/run/docker.sock  
        
         }
     }
