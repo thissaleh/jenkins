@@ -29,17 +29,7 @@ spec:
           value: 1
         - name: DOCKER_HOST
           value: tcp://localhost:2376
-    - name: dind
-      image: docker:dind
 
-      env:
-        - name: DOCKER_TLS_CERTDIR
-          value: /certs
-      volumeMounts:
-        - name: dind-storage
-          mountPath: /var/lib/docker
-        - name: dind-certs
-          mountPath: /certs
   volumes:
     - name: dind-storage
       emptyDir: {}
